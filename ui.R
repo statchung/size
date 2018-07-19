@@ -4,7 +4,7 @@ library(fpow)
 
 fluidPage( tagList(
     
-    navbarPage(
+      navbarPage(
       # theme = "cerulean",  # <--- To use a theme, uncomment this
       "Design options",
       tabPanel("Factorial Design",
@@ -45,10 +45,13 @@ fluidPage( tagList(
                mainPanel(
                  tabsetPanel(
                    tabPanel("Result",
+                            h4('Model'),
+                            verbatimTextOutput("list1" ),
                             h4('Sample Size'),
                             verbatimTextOutput("Size1"),
                             h4('Detectable effect size'),
                             verbatimTextOutput("Size2")
+                            
                    ),
                    tabPanel("Delta vs Power Plot", 
                             sidebarLayout(      
@@ -65,8 +68,8 @@ fluidPage( tagList(
                                       tableOutput("values")
                                       
                                       )) ) ,
-                   tabPanel("Delta vs Size Plot",  plotOutput("Size_graph")) ,
-                   tabPanel("Power vs Size Plot",
+                   tabPanel("Size vs Delta Plot",  plotOutput("Size_graph")) ,
+                   tabPanel("Size vs Power Plot",
                             sidebarLayout(      
                               
                               # Define the sidebar with one input
@@ -121,6 +124,8 @@ fluidPage( tagList(
       mainPanel(
         tabsetPanel(
           tabPanel("Result",
+                   h4('Model'),
+                   verbatimTextOutput("list1_2" ),
                    h4('Sample Size'),
                    verbatimTextOutput("Size12"),
                    h4('Detectable effect size'),
@@ -187,6 +192,9 @@ fluidPage( tagList(
                mainPanel(
                  tabsetPanel(
                    tabPanel("Result",
+                            
+                            h4('Model'),
+                            verbatimTextOutput("list1_3" ),
                             h4('Sample Size'),
                             verbatimTextOutput("Size1_3"),
                             h4('Detectable effect size'),
@@ -207,8 +215,8 @@ fluidPage( tagList(
                                         tableOutput("values3")
                                         
                               )) ) ,
-                   tabPanel("Delta vs Size Plot",  plotOutput("Size_graph3")) ,
-                   tabPanel("Power vs Size Plot",
+                   tabPanel("Size vs Delta Plot",  plotOutput("Size_graph3")) ,
+                   tabPanel("Size vs Power Plot",
                             sidebarLayout(      
                               
                               # Define the sidebar with one input
@@ -224,7 +232,7 @@ fluidPage( tagList(
                  )
                )
       ),
-      tabPanel("Split Design",
+      tabPanel("Split-Plot Design",
                sidebarPanel(
                  numericInput('wf','Number of Whole Factor',2,min=2,max=10),
                  textInput("wfl", 'Whole Factor Levels', value = "2,2"),
@@ -242,14 +250,16 @@ fluidPage( tagList(
                                   
                                   numericInput('de1_4','SD(Main)',1,min=0,max=10),
                                   numericInput('de2_4','SD(Interaction)',1,min=0,max=10),
-                                  numericInput('de3_4','SD(Noise)',1,min=0,max=10)
+                                  numericInput('de3_4','SD(Whole Noise)',1,min=0,max=10),
+                                  numericInput('de4_4','SD(Noise)',1,min=0,max=10)
                                   
                  )  ,
                  conditionalPanel("input.delta_type4==2", 
                                   
                                   numericInput('de11_4','Range of effect(Main)',1,min=0,max=10),
                                   numericInput('de12_4','Range of effect(Interaction)',1,min=0,max=10),
-                                  numericInput('de13_4','SD(Noise)',1,min=0,max=10)
+                                  numericInput('de13_4','SD(Whole Noise)',1,min=0,max=10),
+                                  numericInput('de14_4','SD(Noise)',1,min=0,max=10)
                                   
                  )  ,
                  
@@ -264,6 +274,9 @@ fluidPage( tagList(
                mainPanel(
                  tabsetPanel(
                    tabPanel("Result",
+                            
+                            h4('Model'),
+                            verbatimTextOutput("list1_4" ),
                             h4('Sample Size'),
                             verbatimTextOutput("Size1_4"),
                             h4('Detectable effect size'),
@@ -284,8 +297,8 @@ fluidPage( tagList(
                                         tableOutput("values4")
                                         
                               )) ) ,
-                   tabPanel("Delta vs Size Plot",  plotOutput("Size_graph4")) ,
-                   tabPanel("Power vs Size Plot",
+                   tabPanel("Size vs Delta Plot",  plotOutput("Size_graph4")) ,
+                   tabPanel("Size vs Power Plot",
                             sidebarLayout(      
                               
                               # Define the sidebar with one input
