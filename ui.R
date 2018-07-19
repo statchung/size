@@ -4,7 +4,7 @@ library(fpow)
 
 fluidPage( tagList(
     
-      navbarPage(
+  navbarPage(
       # theme = "cerulean",  # <--- To use a theme, uncomment this
       "Design options",
       tabPanel("Factorial Design",
@@ -138,8 +138,8 @@ fluidPage( tagList(
                                tableOutput("values2"))
                                
                       ,
-          tabPanel("Delta vs Size Plot",  plotOutput("Size_graph2")) ,
-          tabPanel("Power vs Size Plot",
+          tabPanel("Size vs Delta Plot",  plotOutput("Size_graph2")) ,
+          tabPanel("Size vs Power Plot",
                    sidebarLayout(      
                      
                      # Define the sidebar with one input
