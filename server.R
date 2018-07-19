@@ -3,7 +3,6 @@ library(shinythemes)
 library(fpow) 
 
 
-  
   server <- function(input, output,session) {
     observeEvent(input$do, {
     #fsize.m
@@ -45,6 +44,16 @@ library(fpow)
       else if (delta_type==2) (Delta<-sqrt(4*fl/c)) #ncp<-Delta^2*c/2
       
       return(Delta)
+    }
+    
+    list_fc<-function(list)
+    {
+      x<- length(list) 
+      
+      list1<-list[[1]]
+      for( i in 1:(x-1))
+        list1<-paste(list1,list[[i+1]],sep="+")
+      return(list1=list1)
     }
     
     sampleSize.Factorial <- function(factor, factor.lev,delta_type, order=c(1,2),  Deltao=c(1,1,1), alpha=0.05, beta=0.2){
@@ -108,11 +117,12 @@ library(fpow)
       return(list(n=nn, Delta=Delta))
       
     }
+   
      
     output$Size1<-renderText({sampleSize.Factorial(input$nf, as.numeric(unlist(strsplit(input$fl,","))),  delta_type=input$delta_type,order=max(input$checkGroup), Deltao=ifelse(rep(input$delta_type==1,3),c(input$de1,input$de2,input$de3),c(input$de11,input$de12,input$de13)), beta=1-input$b, alpha=input$a)[[1]]}) 
     output$Size2<-renderText({sampleSize.Factorial(input$nf, as.numeric(unlist(strsplit(input$fl,","))),  delta_type=input$delta_type,order=max(input$checkGroup), Deltao=ifelse(rep(input$delta_type==1,3),c(input$de1,input$de2,input$de3),c(input$de11,input$de12,input$de13)), beta=1-input$b, alpha=input$a)[[2]]})
+    output$list1<-renderText({list_fc(full_list)})
     
-   
    #####Graph
    output$Delta_graph<-renderPlot({
      FF2<-sampleSize.Factorial(input$nf, as.numeric(unlist(strsplit(input$fl,","))),  order=max(input$checkGroup), delta_type=input$delta_type,Deltao=ifelse(rep(input$delta_type==1,3),c(input$de1,input$de2,input$de3),c(input$de11,input$de12,input$de13)), beta=1-input$b, alpha=input$a)
@@ -177,8 +187,9 @@ library(fpow)
        (de<-ifelse(input$delta_type==1,input$de2/input$de3,input$de12/input$de13 ) )
      if(i==max(x))
      {
-       plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power", xlab=ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise)"),paste0("Range(",input$plot_order,")/SD(noise)")) ,
-            main=ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise) vs Power(=", input$b,")"),paste0("Range(",input$plot_order,")/SD(noise) vs Power(=", input$b,")"))
+       plot(Delta[,nrow(delta.pwr),1], power[1:100],  type="l", ylab="Power", 
+            xlab=ifelse(input$plot_order=="ALL","Delta",ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise)"),paste0("Range(",input$plot_order,")/SD(noise)"))) ,
+            main=ifelse(input$plot_order=="ALL",paste0("Delta vs Power(=",input$b,")"),ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise) vs Power(=", input$b,")"),paste0("Range(",input$plot_order,")/SD(noise) vs Power(=", input$b,")")))
             ,col=1, lty=1,lwd=2)
        for(j in 2:(i-1))
        {
@@ -200,9 +211,10 @@ library(fpow)
      
      else if(i<max(x))
      {     
-      plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", xlab=ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise)"),paste0("Range(",input$plot_order,")/SD(noise)")) ,
-           main=ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise) vs Power(=", input$b,")"),paste0("Range(",input$plot_order,")/SD(noise) vs Power(=", input$b,")"))
-              ,col=1, lwd=2)
+      plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", 
+           xlab=ifelse(input$plot_order=="ALL","Delta",ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise)"),paste0("Range(",input$plot_order,")/SD(noise)"))) ,
+           main=ifelse(input$plot_order=="ALL",paste0("Delta vs Power(=",input$b,")"),ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise) vs Power(=", input$b,")"),paste0("Range(",input$plot_order,")/SD(noise) vs Power(=", input$b,")")))
+           ,col=1, lwd=2)
          abline(h=0.8, v= fsize(input$a,0.2,temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]],temp_c[[nrow(delta.pwr)]][i],input$delta_type) , col="gray", lty=3)
           abline(h=0.9, v =fsize(input$a,0.1,temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]],temp_c[[nrow(delta.pwr)]][i],input$delta_type) , col="gray", lty=3)
           abline(h= (1-pf(qf((1-input$a),temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]]),temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]],ncp=ifelse(input$delta_type==1,(1*(temp_c[[nrow(delta.pwr)]][i]*temp_v[[nrow(delta.pwr)]][i])),
@@ -293,7 +305,27 @@ library(fpow)
              
            })
          }
-     
+          else if (n.choose==2)
+          {    
+            sliderValues <- reactive({
+              
+              data.frame(
+                R=c(rep(temp_n[[1]],4)),
+                Delta = c(round(fsize(input$a,0.2,temp_v[[1]][i],temp_denom[[1]],temp_c[[1]][i],input$delta_type),3),
+                          round(fsize(input$a,0.1,temp_v[[1]][i],temp_denom[[1]],temp_c[[1]][i],input$delta_type),3),
+                          "1.0","1.5"
+                ),
+                Power = c("0.8","0.9",
+                          round((1-pf(qf((1-input$a),temp_v[[1]][i],temp_denom[[1]]),temp_v[[1]][i],temp_denom[[1]],ncp=ifelse(input$delta_type==1,(1*(temp_c[[1]][i]*temp_v[[1]][i])),
+                                                                                                                               (1*temp_c[[1]][i]/2)))),3),#(Delta^2)*(c*nu1)
+                          round((1-pf(qf((1-input$a),temp_v[[1]][i],temp_denom[[1]]),temp_v[[1]][i],temp_denom[[1]],ncp=ifelse(input$delta_type==1,(1.5^2*(temp_c[[1]][i]*temp_v[[1]][i])),
+                                                                                                                               (1.5^2*temp_c[[1]][i]/2)))),3)
+                          
+                ),
+                stringsAsFactors = FALSE)
+              
+            })
+          }
          # Show the values in an HTML table ----
          output$values <- renderTable({
            sliderValues()
@@ -340,8 +372,8 @@ library(fpow)
      }
      
  
-         plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(50,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type==1,2),c(input$de1/input$de3,input$de2/input$de3),c(input$de11/input$de13,input$de12/input$de13)))*1.5), ylab="Delta", xlab="the number of replications", 
-            main="Delta vs the number of replications(r)",col=1, lwd=2)
+         plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type==1,2),c(input$de1/input$de3,input$de2/input$de3),c(input$de11/input$de13,input$de12/input$de13)))*1.5), ylab="Delta", xlab="The number of replications", 
+            main="The number of replications(r) vs Delta",col=1, lwd=2)
        for (i in 2:ncol(Delta)) 
          lines(2:100, Delta[2:100,i], type="l", lty=i, lwd=2,col=i)
           
@@ -400,8 +432,8 @@ library(fpow)
      x<-c(1,2,3)
      j<-x[Deltao==input$plot_delta]
    
-       plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(50,n.choose+5)), ylab="power", xlab="the number of replications", 
-            main="power vs the number of replications(r) ",col=1, lwd=2)
+       plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="The number of replications", 
+            main="The number of replications(r) vs Power",col=1, lwd=2)
        for (i in 2:ncol(Delta)) 
          lines(2:100, pwr[2:100,i,j], type="l", lty=i, lwd=2,col=i)
        
@@ -420,6 +452,12 @@ library(fpow)
     observeEvent(input$do2, {
       #fsize.m
      
+      main_list<-list()
+      for(i in 1:input$nf2)
+      {
+        main_list[[i]]<-toupper(letters)[i]
+      }
+      
       
       fsize <-  function(alpha, beta, nu1, nu2, c,delta_type){
         fc <- qf(1-alpha, nu1, nu2)
@@ -428,6 +466,16 @@ library(fpow)
         else if (delta_type==2) (Delta<-sqrt(4*fl/c)) #ncp<-Delta^2*c/2
         
         return(Delta)
+      }
+      
+      list_fc<-function(list)
+      {
+        x<- length(list) 
+        
+        list1<-list[[1]]
+        for( i in 1:(x-1))
+          list1<-paste(list1,list[[i+1]],sep="+")
+        return(list1=list1)
       }
       
       sampleSize.2levFrFactorial <- function(factor, fraction, resolution, delta_type, Deltao=c(1,1), alpha=0.05, beta=0.2){
@@ -455,6 +503,7 @@ library(fpow)
       
       output$Size12<-renderText({sampleSize.2levFrFactorial(input$nf2, input$fr2, input$check_res,delta_type=input$delta_type2,Deltao=ifelse(rep(input$delta_type2==1,2),c(input$de1_2,input$de3_2),c(input$de11_2,input$de13_2)), beta=1-input$b2, alpha=input$a2)[[1]]})
       output$Size22<-renderText({sampleSize.2levFrFactorial(input$nf2, input$fr2, input$check_res,delta_type=input$delta_type2,Deltao=ifelse(rep(input$delta_type2==1,2),c(input$de1_2,input$de3_2),c(input$de11_2,input$de13_2)), beta=1-input$b2, alpha=input$a2)[[2]]})
+      output$list1_2<-renderText({list_fc(main_list)})
       
       
       output$Delta_graph2<-renderPlot({
@@ -598,7 +647,29 @@ library(fpow)
           
          
         }
-        
+        else if (n.choose==2)
+        {    
+          sliderValues2 <- reactive({
+            
+            data.frame(
+              R=c(rep(temp_n[[1]],4)),
+              Delta = c(round(fsize(input$a2,0.2,temp_v[[1]],temp_denom[[1]],temp_c[[1]],input$delta_type2),3),
+                        round(fsize(input$a2,0.1,temp_v[[1]],temp_denom[[1]],temp_c[[1]],input$delta_type2),3),
+                        "1.0","1.5" 
+              ),
+              Power = c("0.8","0.9",
+                        round((1-pf(qf((1-input$a2),temp_v[[1]],temp_denom[[1]]),temp_v[[1]],temp_denom[[1]],ncp=ifelse(input$delta_type2==1,(1*(temp_c[[1]]*temp_v[[1]])),
+                                                                                                                        (1*temp_c[[1]]/2)))),3),#(Delta^2)*(c*nu1)
+                        round((1-pf(qf((1-input$a2),temp_v[[1]],temp_denom[[1]]),temp_v[[1]],temp_denom[[1]],ncp=ifelse(input$delta_type2==1,(1.5^2*(temp_c[[1]]*temp_v[[1]])),
+                                                                                                                        (1.5^2*temp_c[[1]]/2)))),3) 
+                        
+              ),
+              stringsAsFactors = FALSE)
+            
+          }) 
+          
+          
+        }
         output$values2 <- renderTable({
           sliderValues2()
         })
@@ -634,8 +705,8 @@ library(fpow)
         }
         
         
-        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(50,n.choose+5)), ylim=c(0,max(ifelse(input$delta_type2==1,input$de1_2/input$de3_2,input$de11_2/input$de13_2))*1.5), ylab="Delta", xlab="the number of replications", 
-             main="Delta vs the number of replications(r)",col=1, lwd=2)
+        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(input$delta_type2==1,input$de1_2/input$de3_2,input$de11_2/input$de13_2))*1.5), ylab="Delta", xlab="The number of replications", 
+             main="The number of replications(r) vs Delta",col=1, lwd=2)
         
         abline(h=max(ifelse(input$delta_type2==1,input$de1_2/input$de3_2,input$de11_2/input$de13_2)), v=FF2$n,col="gray", lty=3)
         legend("top", legend=paste0("power=", input$b2), adj=0, bty="n")
@@ -676,8 +747,8 @@ library(fpow)
         x<-c(1,2,3)
         j<-x[Deltao==input$plot_delta2]
         
-        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(50,n.choose+5)), ylab="power", xlab="the number of replications", 
-             main="power vs the number of replications(r) ",col=1, lwd=2)
+        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="The number of replications", 
+             main="The number of replications(r) vs Power",col=1, lwd=2)
         
         abline(h=0.8,col="gray", lty=3)
         
@@ -729,6 +800,16 @@ library(fpow)
         else if (delta_type==2) (Delta<-sqrt(4*fl/c)) #ncp<-Delta^2*c/2
         
         return(Delta)
+      }
+      
+      list_fc<-function(list)
+      {
+        x<- length(list) 
+        
+        list1<-list[[1]]
+        for( i in 1:(x-1))
+          list1<-paste(list1,list[[i+1]],sep="+")
+        return(list1=list1)
       }
       
       sampleSize.RCBD <- function(factor, factor.lev,delta_type, order=c(1,2),  Deltao=c(1,1,1), alpha=0.05, beta=0.2){
@@ -798,7 +879,7 @@ library(fpow)
       
       output$Size1_3<-renderText({sampleSize.RCBD(input$nf3, as.numeric(unlist(strsplit(input$fl3,","))),  delta_type=input$delta_type3,order=max(input$checkGroup3), Deltao=ifelse(rep(input$delta_type3==1,3),c(input$de1_3,input$de2_3,input$de3_3),c(input$de11_3,input$de12_3,input$de13_3)), beta=1-input$b3, alpha=input$a3)[[1]]}) 
       output$Size2_3<-renderText({sampleSize.RCBD(input$nf3, as.numeric(unlist(strsplit(input$fl3,","))),  delta_type=input$delta_type3,order=max(input$checkGroup3), Deltao=ifelse(rep(input$delta_type3==1,3),c(input$de1_3,input$de2_3,input$de3_3),c(input$de11_3,input$de12_3,input$de13_3)), beta=1-input$b3, alpha=input$a3)[[2]]})
-      
+      output$list1_3<-renderText({list_fc(full_list)})
       
       #####Graph
       output$Delta_graph3<-renderPlot({
@@ -859,9 +940,10 @@ library(fpow)
         
         if(i==max(x))
         {
-          plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power", xlab=ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise)"),paste0("Range(",input$plot_order3,")/SD(noise)")) ,
-               main=ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise) vs Power(=", input$b3,")"),paste0("Range(",input$plot_order3,")/SD(noise) vs Power(=", input$b3,")"))
-               ,col=1, lty=1,lwd=2)
+          plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power",  
+          xlab=ifelse(input$plot_order3=="ALL","Delta",ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise)"),paste0("Range(",input$plot_order3,")/SD(noise)"))) ,
+          main=ifelse(input$plot_order3=="ALL",paste0("Delta vs Power(=",input$b3,")"),ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise) vs Power(=", input$b3,")"),paste0("Range(",input$plot_order3,")/SD(noise) vs Power(=", input$b3,")")))
+          ,col=1, lwd=2)
           for(j in 2:(i-1))
           {
             
@@ -882,8 +964,9 @@ library(fpow)
         
         else if(i<max(x))
         {     
-          plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", xlab=ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise)"),paste0("Range(",input$plot_order3,")/SD(noise)")) ,
-               main=ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise) vs Power(=", input$b3,")"),paste0("Range(",input$plot_order3,")/SD(noise) vs Power(=", input$b3,")"))
+          plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", 
+               xlab=ifelse(input$plot_order3=="ALL","Delta",ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise)"),paste0("Range(",input$plot_order3,")/SD(noise)"))) ,
+               main=ifelse(input$plot_order3=="ALL",paste0("Delta vs Power(=",input$b3,")"),ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise) vs Power(=", input$b3,")"),paste0("Range(",input$plot_order3,")/SD(noise) vs Power(=", input$b3,")")))
                ,col=1, lwd=2)
           abline(h=0.8, v= fsize(input$a3,0.2,temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]],temp_c[[nrow(delta.pwr)]][i],input$delta_type3) , col="gray", lty=3)
           abline(h=0.9, v =fsize(input$a3,0.1,temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]],temp_c[[nrow(delta.pwr)]][i],input$delta_type3) , col="gray", lty=3)
@@ -975,7 +1058,27 @@ library(fpow)
               
             })
           }
-          
+          else if (n.choose==2)
+          {    
+            sliderValues <- reactive({
+              
+              data.frame(
+                R=c(rep(temp_n[[1]],4) ),
+                Delta = c(round(fsize(input$a3,0.2,temp_v[[1]][i],temp_denom[[1]],temp_c[[1]][i],input$delta_type3),3),
+                          round(fsize(input$a3,0.1,temp_v[[1]][i],temp_denom[[1]],temp_c[[1]][i],input$delta_type3),3),
+                          "1.0","1.5" 
+                ),
+                Power = c("0.8","0.9",
+                          round((1-pf(qf((1-input$a3),temp_v[[1]][i],temp_denom[[1]]),temp_v[[1]][i],temp_denom[[1]],ncp=ifelse(input$delta_type3==1,(1*(temp_c[[1]][i]*temp_v[[1]][i])),
+                                                                                                                                (1*temp_c[[1]][i]/2)))),3),#(Delta^2)*(c*nu1)
+                          round((1-pf(qf((1-input$a3),temp_v[[1]][i],temp_denom[[1]]),temp_v[[1]][i],temp_denom[[1]],ncp=ifelse(input$delta_type3==1,(1.5^2*(temp_c[[1]][i]*temp_v[[1]][i])),
+                                                                                                                                (1.5^2*temp_c[[1]][i]/2)))),3) 
+                          
+                ),
+                stringsAsFactors = FALSE)
+              
+            })
+          }
           # Show the values in an HTML table ----
           output$values3 <- renderTable({
             sliderValues()
@@ -1022,8 +1125,8 @@ library(fpow)
         }
         
         
-        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(50,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type3==1,2),c(input$de1_3/input$de3_3,input$de2_3/input$de3_3),c(input$de11_3/input$de13_3,input$de12_3/input$de13_3)))*1.5), ylab="Delta", xlab="the number of replications", 
-             main="Delta vs the number of replications(r)",col=1, lwd=2)
+        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type3==1,2),c(input$de1_3/input$de3_3,input$de2_3/input$de3_3),c(input$de11_3/input$de13_3,input$de12_3/input$de13_3)))*1.5), ylab="Delta", xlab="The number of replications", 
+             main="The number of replications(r) vs Delta",col=1, lwd=2)
         for (i in 2:ncol(Delta)) 
           lines(2:100, Delta[2:100,i], type="l", lty=i, lwd=2,col=i)
         
@@ -1082,8 +1185,8 @@ library(fpow)
         x<-c(1,2,3)
         j<-x[Deltao==input$plot_delta3]
         
-        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(50,n.choose+5)), ylab="power", xlab="the number of replications", 
-             main="power vs the number of replications(r) ",col=1, lwd=2)
+        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="The number of replications", 
+             main="The number of replications(r) vs Power",col=1, lwd=2)
         for (i in 2:ncol(Delta)) 
           lines(2:100, pwr[2:100,i,j], type="l", lty=i, lwd=2,col=i)
         
@@ -1192,7 +1295,17 @@ library(fpow)
         return(Delta)
       }
       
-      sampleSize.split<- function(whole.factor, whole.factor.lev, split.factor, split.factor.lev, delta_type=1,order=c(1,2), Deltao=c(1,1,1), alpha=0.05, beta=0.2){
+      list_fc<-function(list)
+      {
+        x<- length(list) 
+        
+        list1<-list[[1]]
+        for( i in 1:(x-1))
+          list1<-paste(list1,list[[i+1]],sep="+")
+        return(list1=list1)
+      }
+      
+      sampleSize.split<- function(whole.factor, whole.factor.lev, split.factor, split.factor.lev, delta_type=1,order=c(1,2), Deltao=c(1,1,1,1), alpha=0.05, beta=0.2){
         main_n<-0
         two_n<-0
         nn<-0
@@ -1229,7 +1342,7 @@ library(fpow)
               split.Delta[i] <- fsize(alpha, beta, v.split[i], v.split.denom, c.split[i],delta_type)
             }
             
-            if ( max(whole.Delta)<=Deltao[1]/Deltao[3] & max(split.Delta)<=Deltao[1]/Deltao[3]  ) 
+            if ( max(whole.Delta)<=Deltao[1]/Deltao[3] & max(split.Delta)<=Deltao[1]/Deltao[4]  ) 
               (nn<-n)
             
           }
@@ -1270,7 +1383,7 @@ library(fpow)
               for (i in 1:split.factor){
                 split.Delta[i] <-fsize(alpha, beta, v.split[i], v.split.denom, c.split[i],delta_type)
               }
-              if (max(whole.Delta[1:whole.factor])<=Deltao[1]/Deltao[3] & max(split.Delta[1:split.factor])<=Deltao[1]/Deltao[3] ) (main_n<-n)
+              if (max(whole.Delta[1:whole.factor])<=Deltao[1]/Deltao[3] & max(split.Delta[1:split.factor])<=Deltao[1]/Deltao[4] ) (main_n<-n)
             }
             
             if(two_n==0)
@@ -1284,10 +1397,10 @@ library(fpow)
                   whole.Delta[i] <- fsize(alpha, beta, v.whole[i], v.whole.denom, c.whole[i],delta_type)*sqrt(prod(split.factor.lev)+1)
                 }	
                 
-                if (max(whole.Delta[(whole.factor+1): length(v.whole)])<=Deltao[2]/Deltao[3] & max(split.Delta[(split.factor+1) : length(v.split)])<=Deltao[2]/Deltao[3] ) (two_n<-n)
+                if (max(whole.Delta[(whole.factor+1): length(v.whole)])<=Deltao[2]/Deltao[3] & max(split.Delta[(split.factor+1) : length(v.split)])<=Deltao[2]/Deltao[4] ) (two_n<-n)
               }
               else 
-                ( if (  max(split.Delta[(split.factor+1) : length(v.split)])<=Deltao[2]/Deltao[3] ) (two_n<-n))
+                ( if (  max(split.Delta[(split.factor+1) : length(v.split)])<=Deltao[2]/Deltao[4] ) (two_n<-n))
             }
             if(main_n >0 & two_n>0) (nn<-max(main_n,two_n))
           }
@@ -1312,13 +1425,15 @@ library(fpow)
       }
            
       output$Size1_4<-renderText({sampleSize.split(input$wf, as.numeric(unlist(strsplit(input$wfl,","))), input$sf, as.numeric(unlist(strsplit(input$sfl,","))),  
-                                                   delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,3),c(input$de1_4,input$de2_4,input$de3_4),c(input$de11_4,input$de12_4,input$de13_4)), beta=1-input$b4, alpha=input$a4)[[1]]}) 
+                                                   delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,4),c(input$de1_4,input$de2_4,input$de3_4,input$de4_4),c(input$de11_4,input$de12_4,input$de13_4,input$de14_4)), beta=1-input$b4, alpha=input$a4)[[1]]}) 
       output$Size2_4<-renderText({sampleSize.split(input$wf, as.numeric(unlist(strsplit(input$wfl,","))), input$sf, as.numeric(unlist(strsplit(input$sfl,","))),  
-                                                   delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,3),c(input$de1_4,input$de2_4,input$de3_4),c(input$de11_4,input$de12_4,input$de13_4)), beta=1-input$b4, alpha=input$a4)[[2]]}) 
+                                                   delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,4),c(input$de1_4,input$de2_4,input$de3_4,input$de4_4),c(input$de11_4,input$de12_4,input$de13_4,input$de14_4)), beta=1-input$b4, alpha=input$a4)[[2]]}) 
+      
+      output$list1_4<-renderText({list_fc(full_list)})
       
       output$Delta_graph4<-renderPlot({
         FF2<-sampleSize.split(input$wf, as.numeric(unlist(strsplit(input$wfl,","))), input$sf, as.numeric(unlist(strsplit(input$sfl,","))),  
-                              delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,3),c(input$de1_4,input$de2_4,input$de3_4),c(input$de11_4,input$de12_4,input$de13_4)), beta=1-input$b4, alpha=input$a4)
+                              delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,4),c(input$de1_4,input$de2_4,input$de3_4,input$de4_4),c(input$de11_4,input$de12_4,input$de13_4,input$de14_4)), beta=1-input$b4, alpha=input$a4)
         
         (n.choose <- FF2$n); 
         (Delta.choose <- data.frame(t(FF2$Delta)))
@@ -1450,9 +1565,10 @@ library(fpow)
         
         if(i==max(x))
         {
-          plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power", xlab=ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise)"),paste0("Range(",input$plot_order4,")/SD(noise)")) ,
-               main=ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise) vs Power(=", input$b4,")"),paste0("Range(",input$plot_order4,")/SD(noise) vs Power(=", input$b4,")"))
-               ,col=1, lty=1,lwd=2)
+          plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power",  
+          xlab=ifelse(input$plot_order4=="ALL","Delta",ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise)"),paste0("Range(",input$plot_order4,")/SD(noise)"))) ,
+          main=ifelse(input$plot_order4=="ALL",paste0("Delta vs Power(=",input$b4,")"),ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise) vs Power(=", input$b4,")"),paste0("Range(",input$plot_order4,")/SD(noise) vs Power(=", input$b4,")")))
+          ,col=1, lwd=2)
           for(j in 2:(i-1))
           {
             
@@ -1473,8 +1589,8 @@ library(fpow)
         
         else if(i<max(x))
         {     
-          plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", xlab=ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise)"),paste0("Range(",input$plot_order4,")/SD(noise)")) ,
-               main=ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise) vs Power(=", input$b4,")"),paste0("Range(",input$plot_order4,")/SD(noise) vs Power(=", input$b4,")"))
+          plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", xlab=ifelse(input$plot_order4=="ALL","Delta",ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise)"),paste0("Range(",input$plot_order4,")/SD(noise)"))) ,
+               main=ifelse(input$plot_order4=="ALL",paste0("Delta vs Power(=",input$b4,")"),ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise) vs Power(=", input$b4,")"),paste0("Range(",input$plot_order4,")/SD(noise) vs Power(=", input$b4,")")))
                ,col=1, lwd=2)
           abline(h=0.8, v= fsize(input$a4,0.2,temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]][ifelse(i<=length(v.whole),1,2)],temp_c[[nrow(delta.pwr)]][i],input$delta_type4)*ifelse(i<=length(v.whole),sqrt(prod( sfl)+1),1) , col="gray", lty=3)
           abline(h=0.9, v =fsize(input$a4,0.1,temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]][ifelse(i<=length(v.whole),1,2)],temp_c[[nrow(delta.pwr)]][i],input$delta_type4)*ifelse(i<=length(v.whole),sqrt(prod( sfl)+1),1) , col="gray", lty=3)
@@ -1566,7 +1682,27 @@ library(fpow)
               
             })
           }
-          
+          else if (n.choose==2)
+          {    
+            sliderValues <- reactive({
+              
+              data.frame(
+                R=c(rep(temp_n[[1]],4) ),
+                Delta = c(round(fsize(input$a4,0.2,temp_v[[1]][i],temp_denom[[1]][ifelse(i<=length(v.whole),1,2)],temp_c[[1]][i],input$delta_type4)*ifelse(i<=length(v.whole),sqrt(prod( sfl)+1),1),3),
+                          round(fsize(input$a4,0.1,temp_v[[1]][i],temp_denom[[1]][ifelse(i<=length(v.whole),1,2)],temp_c[[1]][i],input$delta_type4)*ifelse(i<=length(v.whole),sqrt(prod( sfl)+1),1),3),
+                          "1.0","1.5" 
+                ),
+                Power = c("0.8","0.9",
+                          round((1-pf(qf((1-input$a4),temp_v[[1]][i],temp_denom[[1]][ifelse(i<=length(v.whole),1,2)]),temp_v[[1]][i],temp_denom[[1]][ifelse(i<=length(v.whole),1,2)],ncp=ifelse(input$delta_type4==1,(1*(temp_c[[1]][i]*temp_v[[1]][i]))/ifelse(i<=length(v.whole),prod(sfl)+1,1),
+                                                                                                                                                                                                (1*temp_c[[1]][i]/2)/ifelse(i<=length(v.whole),prod(sfl)+1,1)))),3),#(Delta^2)*(c*nu1)
+                          round((1-pf(qf((1-input$a4),temp_v[[1]][i],temp_denom[[1]][ifelse(i<=length(v.whole),1,2)]),temp_v[[1]][i],temp_denom[[1]][ifelse(i<=length(v.whole),1,2)],ncp=ifelse(input$delta_type4==1,(1.5^2*(temp_c[[1]][i]*temp_v[[1]][i]))/ifelse(i<=length(v.whole),prod(sfl)+1,1),
+                                                                                                                                                                                                (1.5^2*temp_c[[1]][i]/2)/ifelse(i<=length(v.whole),prod(sfl)+1,1)))),3) 
+                          
+                ),
+                stringsAsFactors = FALSE)
+              
+            })
+          }
           # Show the values in an HTML table ----
           output$values4 <- renderTable({
             sliderValues()
@@ -1579,7 +1715,7 @@ library(fpow)
       
       output$Size_graph4<-renderPlot({
         FF2<-sampleSize.split(input$wf, as.numeric(unlist(strsplit(input$wfl,","))), input$sf, as.numeric(unlist(strsplit(input$sfl,","))),  
-                              delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,3),c(input$de1_4,input$de2_4,input$de3_4),c(input$de11_4,input$de12_4,input$de13_4)), beta=1-input$b4, alpha=input$a4)
+                              delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,4),c(input$de1_4,input$de2_4,input$de3_4,input$de4_4),c(input$de11_4,input$de12_4,input$de13_4,input$de14_4)), beta=1-input$b4, alpha=input$a4)
         
         (n.choose <- FF2$n); 
         (Delta.choose <- data.frame(t(FF2$Delta)))
@@ -1660,12 +1796,12 @@ library(fpow)
         }
         
         
-        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(50,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type4==1,2),c(input$de1_4/input$de3_4,input$de2_4/input$de3_4),c(input$de11_4/input$de13_4,input$de12_4/input$de13_4)))*1.5), ylab="Delta", xlab="the number of replications", 
-             main="Delta vs the number of replications(r)",col=1, lwd=2)
+        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type4==1,2),c(input$de1_4/min(input$de3_4,input$de4_4),input$de2_4/min(input$de3_4,input$de4_4)),c(input$de11_4/min(input$de13_4,input$de14_4),input$de12_4/min(input$de13_4,input$de14_4))))*1.5), ylab="Delta", xlab="The number of replications", 
+             main="The number of replications(r) vs Delta",col=1, lwd=2)
         for (i in 2:ncol(Delta)) 
           lines(2:100, Delta[2:100,i], type="l", lty=i, lwd=2,col=i)
         
-        abline(h=max(ifelse(rep(input$delta_type4==1,2),c(input$de1_4/input$de3_4,input$de2_4/input$de3_4),c(input$de11_4/input$de13_4,input$de12_4/input$de13_4))), v=FF2$n,col="gray", lty=3)
+        abline(h=max(ifelse(rep(input$delta_type4==1,2),c(input$de1_4/min(input$de3_4,input$de4_4),input$de2_4/min(input$de3_4,input$de4_4)),c(input$de11_4/min(input$de13_4,input$de14_4),input$de12_4/min(input$de13_4,input$de14_4)))), v=FF2$n,col="gray", lty=3)
         legend("top", legend=paste0("power=", input$b4), adj=0, bty="n")
         
         legend("topright", legend=full_list, lty=seq(1:length(full_list)),col=seq(1:length(full_list)),lwd=2, adj=0)
@@ -1677,7 +1813,7 @@ library(fpow)
       
       output$power_graph4<-renderPlot({
         FF2<-sampleSize.split(input$wf, as.numeric(unlist(strsplit(input$wfl,","))), input$sf, as.numeric(unlist(strsplit(input$sfl,","))),  
-                              delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,3),c(input$de1_4,input$de2_4,input$de3_4),c(input$de11_4,input$de12_4,input$de13_4)), beta=1-input$b4, alpha=input$a4)
+                              delta_type=input$delta_type4,order=max(input$checkGroup4), Deltao=ifelse(rep(input$delta_type4==1,4),c(input$de1_4,input$de2_4,input$de3_4,input$de4_4),c(input$de11_4,input$de12_4,input$de13_4,input$de14_4)), beta=1-input$b4, alpha=input$a4)
         (n.choose <- FF2$n); 
         (Delta.choose <- data.frame(t(FF2$Delta)))
         gsize<-length(Delta.choose)
@@ -1771,8 +1907,8 @@ library(fpow)
         x<-c(1,2,3)
         j<-x[Deltao==input$plot_delta4]
         
-        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(50,n.choose+5)), ylab="power", xlab="the number of replications", 
-             main="power vs the number of replications(r) ",col=1, lwd=2)
+        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="The number of replications", 
+             main="The number of replications(r) vs Power",col=1, lwd=2)
         for (i in 2:ncol(Delta)) 
           lines(2:100, pwr[2:100,i,j], type="l", lty=i, lwd=2,col=i)
         
