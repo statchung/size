@@ -3,7 +3,7 @@ library(shinythemes)
 library(fpow) 
 
 
-  server <- function(input, output,session) {
+   server <- function(input, output,session) {
     observeEvent(input$do, {
     #fsize.m
       main_list<-list()
@@ -372,8 +372,8 @@ library(fpow)
      }
      
  
-         plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type==1,2),c(input$de1/input$de3,input$de2/input$de3),c(input$de11/input$de13,input$de12/input$de13)))*1.5), ylab="Delta", xlab="The number of replications", 
-            main="The number of replications(r) vs Delta",col=1, lwd=2)
+         plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type==1,2),c(input$de1/input$de3,input$de2/input$de3),c(input$de11/input$de13,input$de12/input$de13)))*1.5), ylab="Delta", xlab="Sample size", 
+            main="Sample size vs Delta",col=1, lwd=2)
        for (i in 2:ncol(Delta)) 
          lines(2:100, Delta[2:100,i], type="l", lty=i, lwd=2,col=i)
           
@@ -432,8 +432,8 @@ library(fpow)
      x<-c(1,2,3)
      j<-x[Deltao==input$plot_delta]
    
-       plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="The number of replications", 
-            main="The number of replications(r) vs Power",col=1, lwd=2)
+       plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="Sample size", 
+            main="Sample size vs Power",col=1, lwd=2)
        for (i in 2:ncol(Delta)) 
          lines(2:100, pwr[2:100,i,j], type="l", lty=i, lwd=2,col=i)
        
@@ -705,8 +705,8 @@ library(fpow)
         }
         
         
-        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(input$delta_type2==1,input$de1_2/input$de3_2,input$de11_2/input$de13_2))*1.5), ylab="Delta", xlab="The number of replications", 
-             main="The number of replications(r) vs Delta",col=1, lwd=2)
+        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(input$delta_type2==1,input$de1_2/input$de3_2,input$de11_2/input$de13_2))*1.5), ylab="Delta", xlab="Sample size", 
+             main="Sample size vs Delta",col=1, lwd=2)
         
         abline(h=max(ifelse(input$delta_type2==1,input$de1_2/input$de3_2,input$de11_2/input$de13_2)), v=FF2$n,col="gray", lty=3)
         legend("top", legend=paste0("power=", input$b2), adj=0, bty="n")
@@ -747,8 +747,8 @@ library(fpow)
         x<-c(1,2,3)
         j<-x[Deltao==input$plot_delta2]
         
-        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="The number of replications", 
-             main="The number of replications(r) vs Power",col=1, lwd=2)
+        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="Sample size", 
+             main="Sample size vs Power",col=1, lwd=2)
         
         abline(h=0.8,col="gray", lty=3)
         
@@ -1125,8 +1125,8 @@ library(fpow)
         }
         
         
-        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type3==1,2),c(input$de1_3/input$de3_3,input$de2_3/input$de3_3),c(input$de11_3/input$de13_3,input$de12_3/input$de13_3)))*1.5), ylab="Delta", xlab="The number of replications", 
-             main="The number of replications(r) vs Delta",col=1, lwd=2)
+        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type3==1,2),c(input$de1_3/input$de3_3,input$de2_3/input$de3_3),c(input$de11_3/input$de13_3,input$de12_3/input$de13_3)))*1.5), ylab="Delta", xlab="Sample size", 
+             main="Sample size vs Delta",col=1, lwd=2)
         for (i in 2:ncol(Delta)) 
           lines(2:100, Delta[2:100,i], type="l", lty=i, lwd=2,col=i)
         
@@ -1185,8 +1185,8 @@ library(fpow)
         x<-c(1,2,3)
         j<-x[Deltao==input$plot_delta3]
         
-        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="The number of replications", 
-             main="The number of replications(r) vs Power",col=1, lwd=2)
+        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="Sample size", 
+             main="Sample size vs Power",col=1, lwd=2)
         for (i in 2:ncol(Delta)) 
           lines(2:100, pwr[2:100,i,j], type="l", lty=i, lwd=2,col=i)
         
@@ -1796,8 +1796,8 @@ library(fpow)
         }
         
         
-        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type4==1,2),c(input$de1_4/min(input$de3_4,input$de4_4),input$de2_4/min(input$de3_4,input$de4_4)),c(input$de11_4/min(input$de13_4,input$de14_4),input$de12_4/min(input$de13_4,input$de14_4))))*1.5), ylab="Delta", xlab="The number of replications", 
-             main="The number of replications(r) vs Delta",col=1, lwd=2)
+        plot(2:100, Delta[2:100,1], type="l", xlim=c(0,min(100,n.choose+5)), ylim=c(0,max(ifelse(rep(input$delta_type4==1,2),c(input$de1_4/min(input$de3_4,input$de4_4),input$de2_4/min(input$de3_4,input$de4_4)),c(input$de11_4/min(input$de13_4,input$de14_4),input$de12_4/min(input$de13_4,input$de14_4))))*1.5), ylab="Delta", xlab="Sample size", 
+             main="Sample size vs Delta",col=1, lwd=2)
         for (i in 2:ncol(Delta)) 
           lines(2:100, Delta[2:100,i], type="l", lty=i, lwd=2,col=i)
         
@@ -1907,8 +1907,8 @@ library(fpow)
         x<-c(1,2,3)
         j<-x[Deltao==input$plot_delta4]
         
-        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="The number of replications", 
-             main="The number of replications(r) vs Power",col=1, lwd=2)
+        plot(2:100, pwr[2:100,1, j], type="l", ylim=c(0,1), xlim=c(0,min(100,n.choose+5)), ylab="Power", xlab="Sample size", 
+             main="Sample size vs Power",col=1, lwd=2)
         for (i in 2:ncol(Delta)) 
           lines(2:100, pwr[2:100,i,j], type="l", lty=i, lwd=2,col=i)
         
