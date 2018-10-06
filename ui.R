@@ -250,13 +250,11 @@ fluidPage( tagList(
                                             choices=c(1,1.5,2.0))
                                 ),
                               mainPanel(plotOutput("power_graph4"))
-                                        
-                          )
-  )
-  )
-  )
-  )
-  )
-  )
-  
-  )
+                              )
+                            )
+                   )
+                 )
+               )
+      )
+    )
+    )
