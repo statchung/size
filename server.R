@@ -3,6 +3,7 @@ library(shinythemes)
 library(fpow)
 library(shinyalert)
 
+
   server <- function(input, output,session) 
     {
     observeEvent(input$do,
@@ -1250,6 +1251,11 @@ library(shinyalert)
     
     observeEvent(input$do4, 
       { 
+        
+        if (input$wf>2 || input$sf>2)
+        {
+          shinyalert("Error!", "The number of whole plot factors and split plot factors are up to 2.", type = "error")
+        }
       w_main_list<-list()
       for(i in 1:input$wf)
       {
