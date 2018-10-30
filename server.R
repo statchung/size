@@ -3,7 +3,7 @@ library(shinythemes)
 library(fpow)
 library(shinyalert)
 
-server <- function(input, output,session) 
+  server <- function(input, output,session) 
     {
     observeEvent(input$do,
                  {
@@ -181,6 +181,7 @@ server <- function(input, output,session)
       if(i==max(x))
       {
         plot(Delta[,nrow(delta.pwr),1], power[1:100],  type="l", ylab="Power", 
+             xlim=c(0,max(ifelse(is.na(Delta[,nrow(delta.pwr),]),0,Delta[,nrow(delta.pwr),]))),
              xlab=ifelse(input$plot_order=="ALL","Delta",ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise)"),paste0("Range(",input$plot_order,")/SD(noise)"))) ,
              main=ifelse(input$plot_order=="ALL",paste0("Delta vs Power"),ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise) vs Power"),paste0("Range(",input$plot_order,")/SD(noise) vs Power")))
              ,col=1, lty=1,lwd=2)
@@ -200,7 +201,8 @@ server <- function(input, output,session)
       
       else if(i<max(x))
       {     
-        plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", 
+        plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power",
+             xlim=c(0,max(ifelse(is.na(Delta[, ,i]),0,Delta[, ,i]))),
              xlab=ifelse(input$plot_order=="ALL","Delta",ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise)"),paste0("Range(",input$plot_order,")/SD(noise)"))) ,
              main=ifelse(input$plot_order=="ALL",paste0("Delta vs Power"),ifelse(input$delta_type==1,paste0("SD(",input$plot_order,")/SD(noise) vs Power"),paste0("Range(",input$plot_order,")/SD(noise) vs Power")))
              ,col=1, lwd=2)
@@ -603,7 +605,7 @@ server <- function(input, output,session)
         i<-x[full_list1==input$plot_order2] 
         if(i==max(x) & length(x)==3)
         {
-          plot(Delta[,nrow(delta.pwr),1], power[1:100],  type="l", ylab="Power", 
+          plot(Delta[,nrow(delta.pwr),1], power[1:100],  type="l", ylab="Power",    xlim=c(0,max(ifelse(is.na(Delta[,nrow(delta.pwr),]),0,Delta[,nrow(delta.pwr),]))),
                xlab=ifelse(input$plot_order2=="ALL","Delta",ifelse(input$delta_type2==1,paste0("SD(",input$plot_order2,")/SD(noise)"),paste0("Range(",input$plot_order2,")/SD(noise)"))) ,
                main=ifelse(input$plot_order2=="ALL",paste0("Delta vs Power"),ifelse(input$delta_type2==1,paste0("SD(",input$plot_order2,")/SD(noise) vs Power"),paste0("Range(",input$plot_order2,")/SD(noise) vs Power")))
                ,col=1, lty=1,lwd=2)
@@ -618,7 +620,7 @@ server <- function(input, output,session)
           }
         else if (i<max(x) || length(x)==1)
         {
-        plot(Delta[,nrow(delta.pwr),i], power[1:100],  type="l", ylab="Power", 
+        plot(Delta[,nrow(delta.pwr),i], power[1:100],  type="l", ylab="Power",   xlim=c(0,max(ifelse(is.na(Delta[, ,i]),0,Delta[, ,i]))),
              xlab=ifelse(input$plot_order2=="ALL","Delta",ifelse(input$delta_type2==1,paste0("SD(",input$plot_order2,")/SD(noise)"),paste0("Range(",input$plot_order2,")/SD(noise)"))) ,
              main=ifelse(input$plot_order2=="ALL",paste0("Delta vs Power"),ifelse(input$delta_type2==1,paste0("SD(",input$plot_order2,")/SD(noise) vs Power"),paste0("Range(",input$plot_order2,")/SD(noise) vs Power")))
              ,col=1, lty=1,lwd=2)
@@ -997,7 +999,8 @@ server <- function(input, output,session)
         
         if(i==max(x))
         {
-          plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power",  
+          plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power", 
+               xlim=c(0,max(ifelse(is.na(Delta[,nrow(delta.pwr),]),0,Delta[,nrow(delta.pwr),]))),
           xlab=ifelse(input$plot_order3=="ALL","Delta",ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise)"),paste0("Range(",input$plot_order3,")/SD(noise)"))) ,
           main=ifelse(input$plot_order3=="ALL",paste0("Delta vs Power"),ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise) vs Power"),paste0("Range(",input$plot_order3,")/SD(noise) vs Power")))
           ,col=1, lwd=2)
@@ -1016,7 +1019,7 @@ server <- function(input, output,session)
         
         else if(i<max(x))
         {     
-          plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", 
+          plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power",    xlim=c(0,max(ifelse(is.na(Delta[,,i]),0,Delta[,,i]))),
                xlab=ifelse(input$plot_order3=="ALL","Delta",ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise)"),paste0("Range(",input$plot_order3,")/SD(noise)"))) ,
                main=ifelse(input$plot_order3=="ALL",paste0("Delta vs Power"),ifelse(input$delta_type3==1,paste0("SD(",input$plot_order3,")/SD(noise) vs Power"),paste0("Range(",input$plot_order3,")/SD(noise) vs Power")))
                ,col=1, lwd=2)
@@ -1572,7 +1575,7 @@ server <- function(input, output,session)
         
         if(i==max(x))
         {
-          plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power",  
+          plot(Delta[,nrow(delta.pwr),1], power[1:100], type="l", ylab="Power",   xlim=c(0,max(ifelse(is.na(Delta[,nrow(delta.pwr),]),0,Delta[,nrow(delta.pwr),]))),
           xlab=ifelse(input$plot_order4=="ALL","Delta",ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise)"),paste0("Range(",input$plot_order4,")/SD(noise)"))) ,
           main=ifelse(input$plot_order4=="ALL",paste0("Delta vs Power"),ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise) vs Power"),paste0("Range(",input$plot_order4,")/SD(noise) vs Power")))
           ,col=1, lwd=2)
@@ -1591,7 +1594,8 @@ server <- function(input, output,session)
         
         else if(i<max(x))
         {     
-          plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power", xlab=ifelse(input$plot_order4=="ALL","Delta",ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise)"),paste0("Range(",input$plot_order4,")/SD(noise)"))) ,
+          plot(Delta[,nrow(delta.pwr),i], power[1:100], type="l", ylab="Power",  xlim=c(0,max(ifelse(is.na(Delta[,,i]),0,Delta[,,i]))),
+               xlab=ifelse(input$plot_order4=="ALL","Delta",ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise)"),paste0("Range(",input$plot_order4,")/SD(noise)"))) ,
                main=ifelse(input$plot_order4=="ALL",paste0("Delta vs Power"),ifelse(input$delta_type4==1,paste0("SD(",input$plot_order4,")/SD(noise) vs Power"),paste0("Range(",input$plot_order4,")/SD(noise) vs Power")))
                ,col=1, lwd=2)
           abline(h=0.8, v= fsize(input$a4,0.2,temp_v[[nrow(delta.pwr)]][i],temp_denom[[nrow(delta.pwr)]][ifelse(i<=length(v.whole),1,2)],temp_c[[nrow(delta.pwr)]][i],input$delta_type4,vv_flag[i])*ifelse(i<=length(v.whole),sqrt(prod( sfl)+1),1) , col="gray", lty=3)
